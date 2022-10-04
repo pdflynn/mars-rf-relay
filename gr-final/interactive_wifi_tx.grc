@@ -309,7 +309,7 @@ blocks:
     bus_structure: null
     coordinate: [168, 164]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_multiply_const_vxx_0
   id: blocks_multiply_const_vxx
   parameters:
@@ -352,11 +352,11 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    host: ''
+    host: 127.0.0.1
     maxoutbuf: '0'
     minoutbuf: '0'
-    mtu: '10000'
-    port: '52001'
+    mtu: '64'
+    port: '2000'
     tcp_no_delay: 'False'
     type: TCP_SERVER
   states:
