@@ -518,6 +518,26 @@ blocks:
     coordinate: [1048, 788.0]
     rotation: 180
     state: enabled
+- name: blocks_socket_pdu_0
+  id: blocks_socket_pdu
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    host: '"127.0.0.1"'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    mtu: '64'
+    port: '3000'
+    tcp_no_delay: 'True'
+    type: TCP_CLIENT
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [712, 876.0]
+    rotation: 180
+    state: true
 - name: blocks_stream_to_vector_0
   id: blocks_stream_to_vector
   parameters:
@@ -775,13 +795,31 @@ blocks:
     coordinate: [888, 668.0]
     rotation: 0
     state: enabled
+- name: ieee802_11_mac_0
+  id: ieee802_11_mac
+  parameters:
+    affinity: ''
+    alias: ''
+    bss_mac: '[0xff, 0xff, 0xff, 0xff, 0xff, 0xff]'
+    comment: ''
+    dst_mac: '[0x42, 0x42, 0x42, 0x42, 0x42, 0x42]'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    src_mac: '[0x23, 0x23, 0x23, 0x23, 0x23, 0x23]'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [984, 884.0]
+    rotation: 180
+    state: true
 - name: ieee802_11_parse_mac_0
   id: ieee802_11_parse_mac
   parameters:
     affinity: ''
     alias: ''
     comment: ''
-    debug: 'True'
+    debug: 'False'
     log: 'False'
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -1067,6 +1105,8 @@ connections:
 - [ieee802_11_decode_mac_0, out, ieee802_11_parse_mac_0, in]
 - [ieee802_11_frame_equalizer_0, '0', ieee802_11_decode_mac_0, '0']
 - [ieee802_11_frame_equalizer_0, symbols, blocks_pdu_to_tagged_stream_1, pdus]
+- [ieee802_11_mac_0, app out, blocks_socket_pdu_0, pdus]
+- [ieee802_11_parse_mac_0, out, ieee802_11_mac_0, phy in]
 - [ieee802_11_sync_long_0, '0', blocks_stream_to_vector_0, '0']
 - [ieee802_11_sync_short_0, '0', blocks_delay_0, '0']
 - [ieee802_11_sync_short_0, '0', ieee802_11_sync_long_0, '0']
