@@ -23,12 +23,12 @@ with open(filename, "rb") as f:
 # while True:
 try:
     for message in messages:
-        delay = 0.1  # * random.random()  # wait random amount of time
+        # delay = 0.1  # * random.random()  # wait random amount of time
         print("Sending", message)
         sock.sendto(message, (IP, PORT))
-        time.sleep(delay)
-    sock.sendto(str.encode("\n"), (IP, PORT))
-    sock.sendto(str.encode("\n"), (IP, PORT))
+        time.sleep(1e-4)
+    # sock.sendto(str.encode("\n"), (IP, PORT))
+    # sock.sendto(str.encode("\n"), (IP, PORT))
 
 except Exception as e:
     print(e)
