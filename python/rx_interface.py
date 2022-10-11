@@ -9,8 +9,6 @@ import sys
 import os
 import time
 
-from tx_interface import FILE_EXTENSIONS
-
 # ~~~ Static Variables ~~~
 GR_FLOWGRAPH_IP = "127.0.0.1"
 GR_FLOWGRAPH_PORT = 4000
@@ -97,7 +95,7 @@ while True:
             elapsed_millis = stop_millis - start_millis
 
             # Determine if any frames are missing
-            expected_frame_count = data[1:2]
+            expected_frame_count = int.from_bytes(data[1:2], "little")
             expected_frame_ids = [_ for _ in range(0, expected_frame_count)]
             actual_frame_ids = recv_buf.keys()
             missing_frames = set(expected_frame_ids) - set(actual_frame_ids)
@@ -111,11 +109,24 @@ while True:
             print(
                 f"Packet Error Rate (PER) for this transmission: {packet_error_rate}%")
 
+            # Compute transmission rate
+            bitrate = recv_bytes / elapsed_millis
+            print(f"Data Rate for this transmission: {bitrate} KB/s")
+
+            # Write buffer to file
+            # NOTE: If a packet error occurred (and thus a packet wasn't received)
+            # this will not yield a valid file! Need to replace packet errors with
+            # series of 0's or 1's of appropriate length!
+            with open("recv_" + curr_filename, "wb") as f:
+                for i in sorted(recv_buf.keys()):
+                    f.write(recv_buf[i])
+
             state = WAIT_FOR_START
 
         # Handle received data
         else:
             seq_num = data[0:1]  # First 2 bytes are sequence number
+            print(f"Received frame {int.from_bytes(seq_num, 'little')}")
             info = data[2:]  # Remaining bytes are actual information
             recv_buf[seq_num] = info
             frame_count += 1

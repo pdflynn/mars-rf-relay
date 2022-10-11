@@ -5,7 +5,8 @@
 # Usage: tx_interface <filename> <modcod> <chunk_size>
 import socket
 import struct
-import sys, os
+import sys
+import os
 import xmlrpc.client
 
 # ~~~ Static Variables ~~~
@@ -13,7 +14,7 @@ FILESINK_SERVER_IP = "127.0.0.1"
 FILESINK_SERVER_PORT = 2000
 CONTROL_SERVER_IP = "127.0.0.1"
 CONTROL_SERVER_PORT = 3000
-FILE_EXTENSIONS = {"txt": 0, 
+FILE_EXTENSIONS = {"txt": 0,
                    "jpg": 1,
                    "jpeg": 1,
                    "mp3": 2,
@@ -25,6 +26,7 @@ def set_modcod(ip, port, modcod_id):
     # Sets the modulation and coding scheme to be used by the GNU radio server
     proxy = xmlrpc.client.ServerProxy(f"http://{ip}:{port}")
     proxy.set_encoding(modcod_id)
+
 
 def set_tcp_mtu(ip, port, mtu):
     proxy = xmlrpc.client.ServerProxy(f"http://{ip}:{port}")
@@ -42,23 +44,26 @@ def read_file(path, chunk_size):
                 break
     return frames
 
+
 def start_cmd(filename):
     # Return a start command to tell the receiver that a file is starting
     # Format: [1 Byte: "s"] [1 Byte: N] [14 Bytes: File Name]
-    # Where "s" signifies a start chunk, N specifies the file type, 
+    # Where "s" signifies a start chunk, N specifies the file type,
     # and there are 14 bytes for a UTF-8 encoded file name.
     # N = {0: .txt, 1: .jpg, 2: .mp3, 3: .mp4}
     # for Commands / Images / Audio / Video
     [name, extension] = filename.split('.')
     print(name, extension)
     if len(name) > 14:
-        name = name[0:13] # Truncate the file name if it's too long
+        name = name[0:13]  # Truncate the file name if it's too long
     N = FILE_EXTENSIONS[extension.lower()]
-    start_cmd = bytes("s", "utf-8") + struct.pack(">H", N) + bytes(name, "utf-8")
+    start_cmd = bytes("s", "utf-8") + struct.pack(">H", N) + \
+        bytes(name, "utf-8")
     padding_len = 16 - len(start_cmd)
     for i in range(0, padding_len):
-        start_cmd += struct.pack("x") # add padding bytes if filename is short
+        start_cmd += struct.pack("x")  # add padding bytes if filename is short
     return start_cmd
+
 
 def stop_cmd(total_chunks):
     # Returns a stop command containing the total number of chunks sent.
@@ -67,16 +72,18 @@ def stop_cmd(total_chunks):
     # of chunks is equal to how many chunks were sent.
     return bytes("f", "utf-8") + struct.pack(">H", total_chunks) + bytes("f", "utf-8")
 
+
 def send_file(frames):
     # Send frames over TCP to the GNU radio flowgraph
     for i in range(0, len(frames)):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((FILESINK_SERVER_IP, FILESINK_SERVER_PORT))
         print(f"Sending frame {i+1} of {len(frames)}")
-        sock.sendto(frames[i], (FILESINK_SERVER_IP, FILESINK_SERVER_PORT))
+        sock.sendto(struct.pack(">H", i) +
+                    frames[i], (FILESINK_SERVER_IP, FILESINK_SERVER_PORT))
         sock.close()
 
-    return len(frames) # So we can send stop command
+    return len(frames)  # So we can send stop command
 
 
 # ~~~ Parse input arguments ~~~
@@ -111,8 +118,8 @@ if len(args) < 1:
 # ~~~ Send the file! ~~~
 
 # Generate and send the start command 3 times
-start = start_cmd(filename) # First generate a start command
-set_modcod(CONTROL_SERVER_IP, CONTROL_SERVER_PORT, 0) # Set to BPSK 1/2
+start = start_cmd(filename)  # First generate a start command
+set_modcod(CONTROL_SERVER_IP, CONTROL_SERVER_PORT, 0)  # Set to BPSK 1/2
 for i in range(0, 3):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((FILESINK_SERVER_IP, FILESINK_SERVER_PORT))
@@ -122,13 +129,14 @@ for i in range(0, 3):
 
 # Send the actual file data
 file_chunks = read_file(filename, chunk_size)
-set_modcod(CONTROL_SERVER_IP, CONTROL_SERVER_PORT, modcod) # Set to higher modcod
+set_modcod(CONTROL_SERVER_IP, CONTROL_SERVER_PORT,
+           modcod)  # Set to higher modcod
 num_chunks = send_file(file_chunks)
 
 
 # Generate stop word and send it
 stop = stop_cmd(num_chunks)
-set_modcod(CONTROL_SERVER_IP, CONTROL_SERVER_PORT, 0) # Set to BPSK 1/2
+set_modcod(CONTROL_SERVER_IP, CONTROL_SERVER_PORT, 0)  # Set to BPSK 1/2
 for i in range(0, 3):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((FILESINK_SERVER_IP, FILESINK_SERVER_PORT))
@@ -139,7 +147,7 @@ for i in range(0, 3):
 for i in range(0, 1):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((FILESINK_SERVER_IP, FILESINK_SERVER_PORT))
-    sock.sendto(str.encode("\n") , (FILESINK_SERVER_IP, FILESINK_SERVER_PORT))
+    sock.sendto(str.encode("\n"), (FILESINK_SERVER_IP, FILESINK_SERVER_PORT))
     sock.close()
 
 # Close the TCP port
