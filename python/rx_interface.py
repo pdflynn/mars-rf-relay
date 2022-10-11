@@ -77,8 +77,10 @@ while True:
 
             # Set start time upon detecting first start packet
             start_millis = int(time.time() * 1000)
-            file_type = FILE_EXTENSIONS[data[1]]
-            curr_filename = str(data[2:]) + file_type
+            file_type = FILE_EXTENSIONS[data[2]]
+            
+            # this should get rid of any trailing 0 padding bytes
+            curr_filename = str(data[3:]).split("\\")[0] + "." + file_type
 
             print(
                 f"Detected a start packet for {curr_filename} at {time.localtime(start_millis/1000)}")
@@ -95,7 +97,7 @@ while True:
             elapsed_millis = stop_millis - start_millis
 
             # Determine if any frames are missing
-            expected_frame_count = int.from_bytes(data[1:2], "little")
+            expected_frame_count = int.from_bytes(data[1:3], "big")
             expected_frame_ids = [_ for _ in range(0, expected_frame_count)]
             actual_frame_ids = recv_buf.keys()
             missing_frames = set(expected_frame_ids) - set(actual_frame_ids)
@@ -125,9 +127,10 @@ while True:
 
         # Handle received data
         else:
-            seq_num = data[0:1]  # First 2 bytes are sequence number
-            print(f"Received frame {int.from_bytes(seq_num, 'little')}")
+            seq_num = int.from_bytes(data[0:2], "big")  # First 2 bytes are sequence number
+            print(f"Received frame {seq_num}")
             info = data[2:]  # Remaining bytes are actual information
+            print(data[0:2])
             recv_buf[seq_num] = info
             frame_count += 1
             recv_bytes += len(info)
