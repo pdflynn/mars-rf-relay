@@ -57,7 +57,7 @@ def start_cmd(filename):
     if len(name) > 14:
         name = name[0:13]  # Truncate the file name if it's too long
     N = FILE_EXTENSIONS[extension.lower()]
-    start_cmd = bytes("s", "utf-8") + struct.pack(">H", N) + \
+    start_cmd = bytes("s", "utf-8") + N.to_bytes(1, "little") + \
         bytes(name, "utf-8")
     padding_len = 16 - len(start_cmd)
     for i in range(0, padding_len):
@@ -93,8 +93,8 @@ filename = None
 args = sys.argv
 if len(args) > 3:
     chunk_size = int(args[3])
-    if chunk_size > 512 or chunk_size < 32:
-        raise Exception("Please specify a frame size between 32 and 512 bytes")
+    if chunk_size > 1024 or chunk_size < 32:
+        raise Exception("Please specify a frame size between 32 and 1024 bytes")
 
 if len(args) > 2:
     modcod = int(args[2])

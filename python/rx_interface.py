@@ -62,6 +62,7 @@ while True:
     if state == WAIT_FOR_START:  # State machine is waiting for start message
         # Event: Start Message Detected
         if len(data) == START_MSG_LEN and data[0] == 115:
+            # print(data) # debug to print start message
             # Reset buffers and tracker variables
             recv_buf = dict()
             recv_bytes = 0
@@ -77,10 +78,11 @@ while True:
 
             # Set start time upon detecting first start packet
             start_millis = int(time.time() * 1000)
-            file_type = FILE_EXTENSIONS[data[2]]
             
+            file_type = FILE_EXTENSIONS[data[1]]
             # this should get rid of any trailing 0 padding bytes
-            curr_filename = str(data[3:]).split("\\")[0] + "." + file_type
+            # then the [2:] gets rid of the b' from the to string
+            curr_filename = str(data[2:]).split("\\")[0][2:] + "." + file_type
 
             print(
                 f"Detected a start packet for {curr_filename} at {time.localtime(start_millis/1000)}")
@@ -105,11 +107,15 @@ while True:
             #       output file. Best way would be to add a part of the
             #       stop or start message indicating the frame size.
 
+            print("Detected stop frame.")
+
             # Compute packet error rate
             packet_error_rate = (len(missing_frames) /
                                  expected_frame_count) * 100
             print(
                 f"Packet Error Rate (PER) for this transmission: {packet_error_rate}%")
+            if packet_error_rate > 0:
+                print(f"Missing Frames: {str(missing_frames)}")
 
             # Compute transmission rate
             bitrate = recv_bytes / elapsed_millis
@@ -130,7 +136,7 @@ while True:
             seq_num = int.from_bytes(data[0:2], "big")  # First 2 bytes are sequence number
             print(f"Received frame {seq_num}")
             info = data[2:]  # Remaining bytes are actual information
-            print(data[0:2])
+            # print(data[0:2]) # debug to print sequence number in bytes
             recv_buf[seq_num] = info
             frame_count += 1
             recv_bytes += len(info)
