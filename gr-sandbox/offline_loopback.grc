@@ -131,7 +131,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: 16+24
+    value: '1500'
   states:
     bus_sink: false
     bus_source: false
@@ -193,6 +193,20 @@ blocks:
     coordinate: [800, 12.0]
     rotation: 0
     state: enabled
+- name: blocks_message_debug_0
+  id: blocks_message_debug
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    en_uvec: 'True'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1104, 192.0]
+    rotation: 0
+    state: disabled
 - name: blocks_multiply_const_xx_0
   id: blocks_multiply_const_xx
   parameters:
@@ -237,7 +251,7 @@ blocks:
     host: '"127.0.0.1"'
     maxoutbuf: '0'
     minoutbuf: '0'
-    mtu: mtu
+    mtu: '1500'
     port: '2000'
     tcp_no_delay: 'True'
     type: TCP_SERVER
@@ -268,6 +282,23 @@ blocks:
     coordinate: [512, 540.0]
     rotation: 0
     state: true
+- name: blocks_var_to_msg_0
+  id: blocks_var_to_msg
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    msgname: mtu
+    target: mtu
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1080, 108.0]
+    rotation: 180
+    state: disabled
 - name: channels_channel_model_0
   id: channels_channel_model
   parameters:
@@ -540,6 +571,7 @@ connections:
 - [blocks_multiply_const_xx_0, '0', channels_channel_model_0, '0']
 - [blocks_pdu_to_tagged_stream_0_0, '0', qtgui_const_sink_x_0, '0']
 - [blocks_socket_pdu_0, pdus, ieee802_11_mac_0, app in]
+- [blocks_var_to_msg_0, msgout, blocks_message_debug_0, print]
 - [channels_channel_model_0, '0', pfb_arb_resampler_xxx_0, '0']
 - [foo_packet_pad2_0, '0', blocks_multiply_const_xx_0, '0']
 - [ieee802_11_mac_0, phy out, wifi_phy_hier_0, mac_in]

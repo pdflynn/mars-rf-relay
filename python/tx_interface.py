@@ -67,11 +67,14 @@ def stop_cmd(total_chunks):
     # of chunks is equal to how many chunks were sent.
     return bytes("f", "utf-8") + struct.pack(">H", total_chunks) + bytes("f", "utf-8")
 
-def send_file(sock, frames):
+def send_file(frames):
     # Send frames over TCP to the GNU radio flowgraph
     for i in range(0, len(frames)):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((FILESINK_SERVER_IP, FILESINK_SERVER_PORT))
         print(f"Sending frame {i+1} of {len(frames)}")
         sock.sendto(frames[i], (FILESINK_SERVER_IP, FILESINK_SERVER_PORT))
+        sock.close()
 
     return len(frames) # So we can send stop command
 
@@ -106,33 +109,37 @@ if len(args) < 1:
 
 
 # ~~~ Send the file! ~~~
-# Make TCP connection
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect((FILESINK_SERVER_IP, FILESINK_SERVER_PORT))
 
 # Generate and send the start command 3 times
 start = start_cmd(filename) # First generate a start command
 set_modcod(CONTROL_SERVER_IP, CONTROL_SERVER_PORT, 0) # Set to BPSK 1/2
-set_tcp_mtu(CONTROL_SERVER_IP, CONTROL_SERVER_PORT, len(start) + 24) # set MTU
 for i in range(0, 3):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect((FILESINK_SERVER_IP, FILESINK_SERVER_PORT))
     sock.sendto(start, (FILESINK_SERVER_IP, FILESINK_SERVER_PORT))
+    sock.close()
+
 
 # Send the actual file data
 file_chunks = read_file(filename, chunk_size)
 set_modcod(CONTROL_SERVER_IP, CONTROL_SERVER_PORT, modcod) # Set to higher modcod
-set_tcp_mtu(CONTROL_SERVER_IP, CONTROL_SERVER_PORT, chunk_size + 24) # set MTU
-num_chunks = send_file(sock, file_chunks)
+num_chunks = send_file(file_chunks)
+
 
 # Generate stop word and send it
 stop = stop_cmd(num_chunks)
-set_modcod(CONTROL_SERVER_IP, CONTROL_SERVER_PORT, 2) # Set to BPSK 1/2
-set_tcp_mtu(CONTROL_SERVER_IP, CONTROL_SERVER_PORT, len(stop) + 24) # set MTU
+set_modcod(CONTROL_SERVER_IP, CONTROL_SERVER_PORT, 0) # Set to BPSK 1/2
 for i in range(0, 3):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect((FILESINK_SERVER_IP, FILESINK_SERVER_PORT))
     sock.sendto(stop, (FILESINK_SERVER_IP, FILESINK_SERVER_PORT))
-for i in range(0, 3):
+    sock.close()
+
+# Flush packet
+for i in range(0, 1):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect((FILESINK_SERVER_IP, FILESINK_SERVER_PORT))
     sock.sendto(str.encode("\n") , (FILESINK_SERVER_IP, FILESINK_SERVER_PORT))
-
-
+    sock.close()
 
 # Close the TCP port
-sock.close()

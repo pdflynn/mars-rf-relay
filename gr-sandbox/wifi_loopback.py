@@ -89,7 +89,7 @@ class wifi_loopback(gr.top_block, Qt.QWidget):
         self.snr = snr = 15
         self.pdu_length = pdu_length = 10
         self.out_buf_size = out_buf_size = 96000
-        self.mtu = mtu = 16+24
+        self.mtu = mtu = 1500
         self.epsilon = epsilon = 0
         self.encoding = encoding = 0
         self.chan_est = chan_est = 0
@@ -222,7 +222,7 @@ class wifi_loopback(gr.top_block, Qt.QWidget):
             noise_seed=0,
             block_tags=False)
         self.blocks_socket_pdu_0_0 = blocks.socket_pdu('TCP_CLIENT', "127.0.0.1", '4000', 1500, True)
-        self.blocks_socket_pdu_0 = blocks.socket_pdu('TCP_SERVER', "127.0.0.1", '2000', mtu, True)
+        self.blocks_socket_pdu_0 = blocks.socket_pdu('TCP_SERVER', "127.0.0.1", '2000', 1500, True)
         self.blocks_pdu_to_tagged_stream_0_0 = blocks.pdu_to_tagged_stream(blocks.complex_t, 'packet_len')
         self.blocks_multiply_const_xx_0 = blocks.multiply_const_cc((10**(snr/10.0))**.5, 1)
 
