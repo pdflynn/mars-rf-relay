@@ -149,7 +149,11 @@ blocks:
   id: variable
   parameters:
     comment: ''
+<<<<<<< HEAD
     value: 915e6
+=======
+    value: 2.45e9
+>>>>>>> 461d7b384ab468d266a44e3554770d10fbde61f9
   states:
     bus_sink: false
     bus_source: false
@@ -568,7 +572,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [64, 504.0]
+    coordinate: [80, 436.0]
     rotation: 0
     state: true
 - name: fft_filter_xxx_0

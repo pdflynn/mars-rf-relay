@@ -88,7 +88,11 @@ class wifi_rx(gr.top_block, Qt.QWidget):
         self.rf_gain = rf_gain = 26
         self.lo_offset = lo_offset = 0
         self.gain = gain = 0.5
+<<<<<<< HEAD
         self.freq = freq = 915e6
+=======
+        self.freq = freq = 2.45e9
+>>>>>>> 461d7b384ab468d266a44e3554770d10fbde61f9
         self.chan_est = chan_est = 0
 
         ##################################################
