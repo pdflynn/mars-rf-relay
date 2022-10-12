@@ -27,7 +27,6 @@ sys.path.append(os.environ.get('GRC_HIER_PATH', os.path.expanduser('~/.grc_gnura
 from PyQt5 import Qt
 from PyQt5.QtCore import QObject, pyqtSlot
 from gnuradio import blocks
-import pmt
 from gnuradio import gr
 from gnuradio.filter import firdes
 from gnuradio.fft import window
@@ -86,12 +85,12 @@ class wifi_tx(gr.top_block, Qt.QWidget):
         ##################################################
         self.tx_gain = tx_gain = 0.5
         self.samp_rate = samp_rate = 10e6
-        self.rf_gain = rf_gain = 30
+        self.rf_gain = rf_gain = 48
         self.pdu_length = pdu_length = 500
         self.out_buf_size = out_buf_size = 96000
         self.lo_offset = lo_offset = 0
         self.interval = interval = 300
-        self.freq = freq = 2.45e9
+        self.freq = freq = 915e6
         self.encoding = encoding = 0
 
         ##################################################
@@ -116,15 +115,9 @@ class wifi_tx(gr.top_block, Qt.QWidget):
             lambda i: self.set_samp_rate(self._samp_rate_options[i]))
         # Create the radio buttons
         self.top_layout.addWidget(self._samp_rate_tool_bar)
-        self._rf_gain_range = Range(-12, 61, 1, 30, 200)
+        self._rf_gain_range = Range(-12, 61, 1, 48, 200)
         self._rf_gain_win = RangeWidget(self._rf_gain_range, self.set_rf_gain, "RF Gain", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._rf_gain_win)
-        self._pdu_length_range = Range(0, 1500, 1, 500, 200)
-        self._pdu_length_win = RangeWidget(self._pdu_length_range, self.set_pdu_length, "'pdu_length'", "counter_slider", int, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._pdu_length_win)
-        self._interval_range = Range(10, 1000, 1, 300, 200)
-        self._interval_win = RangeWidget(self._interval_range, self.set_interval, "'interval'", "counter_slider", int, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._interval_win)
         self.xmlrpc_server_0 = SimpleXMLRPCServer(("127.0.0.1", 3000), allow_none=True)
         self.xmlrpc_server_0.register_instance(self)
         self.xmlrpc_server_0_thread = threading.Thread(target=self.xmlrpc_server_0.serve_forever)
@@ -150,6 +143,9 @@ class wifi_tx(gr.top_block, Qt.QWidget):
         self.soapy_limesdr_sink_0.set_frequency(0, freq)
         self.soapy_limesdr_sink_0.set_frequency_correction(0, 0)
         self.soapy_limesdr_sink_0.set_gain(0, min(max(rf_gain, -12.0), 64.0))
+        self._pdu_length_range = Range(0, 1500, 1, 500, 200)
+        self._pdu_length_win = RangeWidget(self._pdu_length_range, self.set_pdu_length, "'pdu_length'", "counter_slider", int, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._pdu_length_win)
         # Create the options list
         self._lo_offset_options = [0, 6000000.0, 11000000.0]
         # Create the labels list
@@ -166,21 +162,24 @@ class wifi_tx(gr.top_block, Qt.QWidget):
             lambda i: self.set_lo_offset(self._lo_offset_options[i]))
         # Create the radio buttons
         self.top_layout.addWidget(self._lo_offset_tool_bar)
+        self._interval_range = Range(10, 1000, 1, 300, 200)
+        self._interval_win = RangeWidget(self._interval_range, self.set_interval, "'interval'", "counter_slider", int, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._interval_win)
         self.ieee802_11_mac_0 = ieee802_11.mac([0x23, 0x23, 0x23, 0x23, 0x23, 0x23], [0x42, 0x42, 0x42, 0x42, 0x42, 0x42], [0xff, 0xff, 0xff, 0xff, 0xff, 255])
         self.foo_packet_pad2_0 = foo.packet_pad2(False, False, 0.01, 100, 1000)
         self.foo_packet_pad2_0.set_min_output_buffer(out_buf_size)
         self.blocks_vector_source_x_0 = blocks.vector_source_c((0,), False, 1, [])
+        self.blocks_socket_pdu_0 = blocks.socket_pdu('TCP_SERVER', '127.0.0.1', '2000', 1500, False)
         self.blocks_multiply_const_vxx_0_0 = blocks.multiply_const_cc(tx_gain)
         self.blocks_multiply_const_vxx_0_0.set_min_output_buffer(100000)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_cc(0.6)
         self.blocks_multiply_const_vxx_0.set_min_output_buffer(100000)
-        self.blocks_message_strobe_0_0 = blocks.message_strobe(pmt.intern("".join("x" for i in range(pdu_length))), interval)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.msg_connect((self.blocks_message_strobe_0_0, 'strobe'), (self.ieee802_11_mac_0, 'app in'))
+        self.msg_connect((self.blocks_socket_pdu_0, 'pdus'), (self.ieee802_11_mac_0, 'app in'))
         self.msg_connect((self.ieee802_11_mac_0, 'phy out'), (self.wifi_phy_hier_0, 'mac_in'))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.foo_packet_pad2_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.soapy_limesdr_sink_0, 0))
@@ -225,7 +224,6 @@ class wifi_tx(gr.top_block, Qt.QWidget):
 
     def set_pdu_length(self, pdu_length):
         self.pdu_length = pdu_length
-        self.blocks_message_strobe_0_0.set_msg(pmt.intern("".join("x" for i in range(self.pdu_length))))
 
     def get_out_buf_size(self):
         return self.out_buf_size
@@ -245,7 +243,6 @@ class wifi_tx(gr.top_block, Qt.QWidget):
 
     def set_interval(self, interval):
         self.interval = interval
-        self.blocks_message_strobe_0_0.set_period(self.interval)
 
     def get_freq(self):
         return self.freq
