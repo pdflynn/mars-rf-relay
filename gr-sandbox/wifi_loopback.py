@@ -97,7 +97,7 @@ class wifi_loopback(gr.top_block, Qt.QWidget):
         ##################################################
         # Blocks
         ##################################################
-        self._snr_range = Range(-15, 30, 0.1, 15, 200)
+        self._snr_range = Range(-15, 40, 0.1, 15, 200)
         self._snr_win = RangeWidget(self._snr_range, self.set_snr, "'snr'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_grid_layout.addWidget(self._snr_win, 2, 0, 1, 1)
         for r in range(2, 3):
@@ -304,6 +304,8 @@ class wifi_loopback(gr.top_block, Qt.QWidget):
 
 
 def main(top_block_cls=wifi_loopback, options=None):
+    if gr.enable_realtime_scheduling() != gr.RT_OK:
+        print("Error: failed to enable real-time scheduling.")
 
     if StrictVersion("4.5.0") <= StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
         style = gr.prefs().get_string('qtgui', 'style', 'raster')

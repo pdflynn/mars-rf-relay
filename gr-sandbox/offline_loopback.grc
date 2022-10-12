@@ -16,7 +16,7 @@ options:
     output_language: python
     placement: (0,0)
     qt_qss_theme: ''
-    realtime_scheduling: ''
+    realtime_scheduling: '1'
     run: 'True'
     run_command: '{python} -u {filename}'
     run_options: prompt
@@ -183,7 +183,7 @@ blocks:
     rangeType: float
     start: '-15'
     step: '0.1'
-    stop: '30'
+    stop: '40'
     value: '15'
     widget: counter_slider
   states:
