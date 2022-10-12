@@ -149,7 +149,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: 912e6
+    value: 915e6
   states:
     bus_sink: false
     bus_source: false
@@ -220,7 +220,7 @@ blocks:
     start: '-12'
     step: '2'
     stop: '61'
-    value: '0'
+    value: '26'
     widget: counter_slider
   states:
     bus_sink: false
@@ -527,9 +527,9 @@ blocks:
     host: '"127.0.0.1"'
     maxoutbuf: '0'
     minoutbuf: '0'
-    mtu: '64'
+    mtu: '1500'
     port: '3000'
-    tcp_no_delay: 'True'
+    tcp_no_delay: 'False'
     type: TCP_CLIENT
   states:
     bus_sink: false
@@ -537,7 +537,7 @@ blocks:
     bus_structure: null
     coordinate: [712, 876.0]
     rotation: 180
-    state: true
+    state: enabled
 - name: blocks_stream_to_vector_0
   id: blocks_stream_to_vector
   parameters:
@@ -819,7 +819,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    debug: 'False'
+    debug: 'True'
     log: 'False'
     maxoutbuf: '0'
     minoutbuf: '0'
