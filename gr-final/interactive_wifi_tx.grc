@@ -63,7 +63,19 @@ blocks:
     bus_structure: null
     coordinate: [1072, 16]
     rotation: 0
-    state: enabled
+    state: disabled
+- name: encoding
+  id: variable
+  parameters:
+    comment: ''
+    value: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1064, 132.0]
+    rotation: 0
+    state: true
 - name: freq
   id: variable_qtgui_chooser
   parameters:
@@ -134,7 +146,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [760, 180.0]
+    coordinate: [976, 132.0]
     rotation: 0
     state: enabled
 - name: interval
@@ -309,7 +321,7 @@ blocks:
     bus_structure: null
     coordinate: [168, 164]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_multiply_const_vxx_0
   id: blocks_multiply_const_vxx
   parameters:
@@ -355,7 +367,7 @@ blocks:
     host: 127.0.0.1
     maxoutbuf: '0'
     minoutbuf: '0'
-    mtu: '64'
+    mtu: '1500'
     port: '2000'
     tcp_no_delay: 'False'
     type: TCP_SERVER
@@ -365,7 +377,7 @@ blocks:
     bus_structure: null
     coordinate: [232, 260.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_vector_source_x_0
   id: blocks_vector_source_x
   parameters:
@@ -741,6 +753,20 @@ blocks:
     coordinate: [440, 396.0]
     rotation: 180
     state: enabled
+- name: xmlrpc_server_0
+  id: xmlrpc_server
+  parameters:
+    addr: '"127.0.0.1"'
+    alias: ''
+    comment: ''
+    port: '3000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [56, 260.0]
+    rotation: 0
+    state: true
 
 connections:
 - [blocks_message_strobe_0_0, strobe, ieee802_11_mac_0, app in]
