@@ -88,7 +88,7 @@ class wifi_tx(gr.top_block, Qt.QWidget):
         self.out_buf_size = out_buf_size = 96000
         self.lo_offset = lo_offset = 0
         self.interval = interval = 300
-        self.freq = freq = 912e6
+        self.freq = freq = 2.45e9
         self.encoding = encoding = 0
 
         ##################################################

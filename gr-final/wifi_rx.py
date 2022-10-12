@@ -88,7 +88,7 @@ class wifi_rx(gr.top_block, Qt.QWidget):
         self.rf_gain = rf_gain = 0
         self.lo_offset = lo_offset = 0
         self.gain = gain = 0.5
-        self.freq = freq = 912e6
+        self.freq = freq = 2.45e9
         self.chan_est = chan_est = 0
 
         ##################################################
@@ -264,7 +264,7 @@ class wifi_rx(gr.top_block, Qt.QWidget):
         self.top_layout.addWidget(self._lo_offset_tool_bar)
         self.ieee802_11_sync_short_0 = ieee802_11.sync_short(sens, 2, False, False)
         self.ieee802_11_sync_long_0 = ieee802_11.sync_long(sync_length, False, False)
-        self.ieee802_11_parse_mac_0 = ieee802_11.parse_mac(False, False)
+        self.ieee802_11_parse_mac_0 = ieee802_11.parse_mac(False, True)
         self.ieee802_11_mac_0 = ieee802_11.mac([0x23, 0x23, 0x23, 0x23, 0x23, 0x23], [0x42, 0x42, 0x42, 0x42, 0x42, 0x42], [0xff, 0xff, 0xff, 0xff, 0xff, 0xff])
         self.ieee802_11_frame_equalizer_0 = ieee802_11.frame_equalizer(ieee802_11.Equalizer(chan_est), freq, samp_rate, False, False)
         self.ieee802_11_decode_mac_0 = ieee802_11.decode_mac(True, False)
@@ -273,13 +273,12 @@ class wifi_rx(gr.top_block, Qt.QWidget):
         self.fft_filter_xxx_0.declare_sample_delay(0)
         self.correctiq_correctiq_0 = correctiq.correctiq()
         self.blocks_stream_to_vector_0 = blocks.stream_to_vector(gr.sizeof_gr_complex*1, 64)
-        self.blocks_socket_pdu_0 = blocks.socket_pdu('TCP_CLIENT', "127.0.0.1", '3000', 64, True)
+        self.blocks_socket_pdu_0 = blocks.socket_pdu('TCP_CLIENT', "127.0.0.1", '3000', 1500, False)
         self.blocks_pdu_to_tagged_stream_1 = blocks.pdu_to_tagged_stream(blocks.complex_t, 'packet_len')
         self.blocks_multiply_xx_0 = blocks.multiply_vcc(1)
         self.blocks_multiply_const_xx_0 = blocks.multiply_const_cc(gain, 1)
         self.blocks_moving_average_xx_1 = blocks.moving_average_cc(window_size, 1, 4000, 1)
         self.blocks_moving_average_xx_0 = blocks.moving_average_ff(window_size  + 16, 1, 4000, 1)
-        self.blocks_message_debug_0 = blocks.message_debug(True)
         self.blocks_divide_xx_0 = blocks.divide_ff(1)
         self.blocks_delay_0_0 = blocks.delay(gr.sizeof_gr_complex*1, 16)
         self.blocks_delay_0 = blocks.delay(gr.sizeof_gr_complex*1, sync_length)
@@ -293,7 +292,6 @@ class wifi_rx(gr.top_block, Qt.QWidget):
         ##################################################
         self.msg_connect((self.ieee802_11_decode_mac_0, 'out'), (self.ieee802_11_parse_mac_0, 'in'))
         self.msg_connect((self.ieee802_11_frame_equalizer_0, 'symbols'), (self.blocks_pdu_to_tagged_stream_1, 'pdus'))
-        self.msg_connect((self.ieee802_11_mac_0, 'app out'), (self.blocks_message_debug_0, 'print_pdu'))
         self.msg_connect((self.ieee802_11_mac_0, 'app out'), (self.blocks_socket_pdu_0, 'pdus'))
         self.msg_connect((self.ieee802_11_parse_mac_0, 'out'), (self.ieee802_11_mac_0, 'phy in'))
         self.connect((self.blocks_complex_to_mag_0, 0), (self.blocks_divide_xx_0, 0))
