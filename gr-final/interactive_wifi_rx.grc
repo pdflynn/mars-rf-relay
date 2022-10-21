@@ -149,11 +149,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-<<<<<<< HEAD
     value: 915e6
-=======
-    value: 2.45e9
->>>>>>> 461d7b384ab468d266a44e3554770d10fbde61f9
   states:
     bus_sink: false
     bus_source: false
