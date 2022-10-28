@@ -5,15 +5,15 @@ This repository holds all of the software as well as the GNU Radio flowgraphs. T
 
 # Transmitter Flowgraph
 
-![TXFlowgraph]()
+![TXFlowgraph](https://raw.githubusercontent.com/pdflynn/mars-rf-relay/main/interactive_wifi_tx.png)
 
 # Receiver Flowgraph
 
-![RXFlowgraph]()
+![RXFlowgraph](https://raw.githubusercontent.com/pdflynn/mars-rf-relay/main/interactive_wifi_rx.png)
 
 # AWGN Channel Testing Flowgraph
 
-![LoopbackFlowgraph]()
+![LoopbackFlowgraph](https://raw.githubusercontent.com/pdflynn/mars-rf-relay/main/offline_loopback.png)
 
 # dependencies
 
